@@ -1,5 +1,6 @@
 package model
 
+//专门存放数据库中参数的文件
 import (
 	"fmt"
 )

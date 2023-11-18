@@ -1,5 +1,6 @@
 package model
 
+//model层放各种数据库操作
 import (
 	"fmt"
 	"gorm.io/driver/mysql"
@@ -11,7 +12,6 @@ var Conn *gorm.DB
 
 func NewMysql() {
 	my := fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&Local", "root", "1234", "127.0.0.1:3306", "vote")
-
 	conn, err := gorm.Open(mysql.Open(my), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)

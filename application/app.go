@@ -1,21 +1,16 @@
 package application
 
+// 这个里边放启动器的代码
 import (
-	"awesomeProject1/application/model"
-	"awesomeProject1/application/router"
+	"toupiao/application/model"
+	"toupiao/application/router"
 )
 
-// 这个里边放启动器的代码
 func Start() {
+
 	model.NewMysql()
-	defer func() {
+	defer func() { //最后运行，结束数据库
 		model.Close()
 	}()
-
 	router.New()
 }
-
-//func main() {
-//	Start()
-//	fmt.Println("Hello World")
-//}
