@@ -2,26 +2,36 @@ package logic
 
 //逻辑层，相当于controller
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"toupiao/application/model"
 )
 
+type User struct {
+	Name     string `json:"name" form:"name"`
+	Password string `json:"password" form:"password"`
+}
+
 func GetLogin(context *gin.Context) {
 	context.HTML(http.StatusOK, "login.tmpl", nil)
 }
 func DoLogin(context *gin.Context) {
-	var user model.User
-	ret := make(map[string]any)
-	_ = context.ShouldBind(&user)
-	ret = model.GetUser(&user)
-	err := model.Conn.Table("user").Where("name = ?", user.Name).Find(&ret).Error
+	var user User
+	//ret := make(map[string]any)
+	err := context.ShouldBind(&user)
 	if err != nil {
-		fmt.Printf("err:%s", err.Error())
-		context.JSON(http.StatusBadGateway, map[string]string{
-			"msg": "用户名或密码错误",
+		context.JSON(http.StatusOK, map[string]string{
+			"msg": "传参错误",
 		})
 	}
+	//作用是了解析请求中的数据将其绑定到user结构体上
+	ret := model.GetUser(user.Name)
+	if ret.ID < 1 || ret.Password != user.Password {
+		context.JSON(http.StatusOK, map[string]string{
+			"msg": "账号密码错误",
+		})
+		return
+	}
+	context.SetCookie("name", user.Name, 3600, "/", "", true, false)
 	context.JSON(http.StatusOK, ret)
 }
