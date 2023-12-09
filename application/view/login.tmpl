@@ -1,16 +1,122 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>香香编程-投票项目</title>
+    <meta charset="utf-8">
+    <title>总辉编程——文档博客</title>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jc</title>
+    <link rel="stylesheet" href="css/iconfont.css">
+    <link rel="stylesheet" href="css/index.css">
 </head>
 <body>
-<main class="main">
-<form method="post" action=" /login">
-<input type="text" name="name" placeholder= "Your name" >
-<input type="password" name="password" placeholder="Password">
-<button type="submit">Sign in</button>
-</form>
-</main>
+<div class="login-box">
+    <h1>登陆</h1>
+    <div class="input-box">
+
+        <main class="main">
+            <div class="input-text">
+                <span class='iconfont icon-mine'></span>
+                <input type="text" name="name" id="name" placeholder="用户名">
+            </div>
+            <div class="input-text">
+                <span class='iconfont icon-lock'></span>
+                <input type="password" name="password" id="password" placeholder="密码">
+            </div>
+
+            <div  class="input-text">
+                <input type="hidden" name="captcha_id" id="captcha_id" >
+            </div >
+            <div class="input-text">
+            <input type="text" name="captcha_value" id ="captcha_value" placeholder="验证码">
+            </div>
+            <div id="img_captcha" >
+            </div>
+            <div class="input-btn">
+                <button type="submit" id="login_sub">Sign in</button>
+            </div>
+            <div class="input-btn">
+                <button type="button" id="register_redirect">注册</button>
+            </div>
+
+
+
+
+        </main>
+        <script>
+            $("#register_redirect").on("click", function () {
+                window.location.href = "/register"; // 修改成你的注册页面路径
+            });
+            $(document).ready(function(){
+                loadCaptcha()
+                //确保在页面完全加载后才执行内部的代码。
+                $("#login_sub").on("click",function () {//事件监听器，它绑定了一个点击事件到sign in按钮
+                    $.ajax({//ajax函数内部，用于异步发送请求参数
+                        //请求资源路径
+                        url:"/login",
+                        //请求参数
+                        data:{
+                            name:$("#name").val(),
+                            password:$("#password").val(),
+                            captcha_id:$("#captcha_id").val(),
+                            captcha_value:$("#captcha_value").val(),
+
+                        },
+                        //请求方式
+                        type:"post",
+                        //数据形式
+                        dataType:"json",
+                        //请求成功后调用的回调函数
+                        success:function (data) {
+                            console.log(data)
+
+                            if (data.code !== 0){
+                                alert(data.message)
+                            }else{
+                                alert("已登录")
+                                setTimeout("pageRedirect()", 3000);
+                                //三秒后调转
+                            }
+                        },
+                        //请求失败后调用的回调函数
+                        error:function () {
+                            alert("请求失败！")
+                        }
+                    });
+                });
+                $("#img_captcha").on("click", function(){
+                    loadCaptcha()
+                })
+            });
+            //实现跳转的函数
+            function pageRedirect() {
+                window.location.replace("/index");
+            }
+
+            function loadCaptcha() {
+                $.ajax({
+                    url:"/captcha",
+                    type:"get",
+                    dataType:"json",
+                    success:function (data) {
+                        console.log(data)
+                        $("#img_captcha").empty()
+                        var img=new Image()
+                        img.onload=function (){
+                            //图片加载到页面上
+                            $("#img_captcha").append(img)
+                        }
+                        img.src=data.data.data
+                        $("#captcha_id").val(data.data.captcha_id)
+                    },
+                    error:function () {
+                        alert("请求失败！")
+                    }
+                });
+            }
+        </script>
+    </div>
+</div>
 </body>
 </html>

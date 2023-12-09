@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>香香编程-投票项目</title>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <!-- 引入echarts.js -->
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+</head>
+
+<body>
+<main>
+    <div id="vote_table">
+    </div>
+    <div id="echarts_main" style="width: 600px; height: 400px;"></div>
+</main>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        loadData();
+    });
+
+    $('body').on('click', '.ajax-trigger', function (event) {
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('echarts_main'));
+        myChart.clear();
+        event.preventDefault();
+        $.ajax({
+            url: "/result/info",
+            type: "GET",
+            data: {
+                id: $(this).attr("data"),
+            },
+            dataType: "json",
+            success: function (data) {
+                var myArray = [];
+                for (const m of data.data.Opt) {
+                    var tmp = {
+                        value: m.Count,
+                        name: m.Name,
+                    }
+                    myArray.push(tmp)
+                }
+                option = {
+                    title: {
+                        text: data.data.Title,
+                        subtext: '投票详情',
+                        left: 'center'
+                    },
+                    tooltip: {
+                        trigger: 'item'
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        left: 'left'
+                    },
+                    series: [
+                        {
+                            type: 'pie',
+                            radius: '50%',
+                            data: myArray,
+                        }
+                    ]
+                };
+                myChart.setOption(option);
+            },
+            error: function (data) {
+                alert(data.message)
+            }
+        });
+    });
+
+    function loadData() {
+        $.ajax({
+            //请求资源路径
+            url: "/votes",
+            //请求参数
+            data: {},
+            //请秋方式
+            type: "get",
+            //数据形式
+            dataType: "json",
+            //请求成功后调用的函数
+            success: function (data) {
+                console.log(data)
+                for (const datum of data.data) {
+                    $("#vote_table").append('<h2><a href="#" class="ajax-trigger" data="' + datum.Id + '">' + datum.Title + '</a></h2><br>');
+                }
+            },
+            error: function () {
+                alert("数据加载失败！")
+            }
+        });
+    }
+</script>
+</body>
+
+</html>
